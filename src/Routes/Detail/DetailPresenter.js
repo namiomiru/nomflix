@@ -114,6 +114,7 @@ const TabsButton = styled.button`
     border-radius: 5px;
   }
   margin: 10px 5px 10px 0;
+  cursor: pointer;
 `;
 const DetailPresenter = ({
   result,
