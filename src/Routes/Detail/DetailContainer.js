@@ -13,7 +13,7 @@ export default class extends React.Component {
       error: null,
       loading: true,
       videos: null,
-      production: "companies",
+      tabs: "videos",
       isMovie: pathname.includes("/movie/")
     };
   }
@@ -51,12 +51,12 @@ export default class extends React.Component {
     }
   }
 
-  tabChange = production => {
-    this.setState({ production: production });
+  tabChange = tap => {
+    this.setState({ tabs: tap });
   };
 
   render() {
-    const { result, error, loading, isMovie, videos, production } = this.state;
+    const { result, error, loading, isMovie, videos, tabs } = this.state;
     return (
       <DetailPresenter
         result={result}
@@ -64,7 +64,7 @@ export default class extends React.Component {
         loading={loading}
         isMovie={isMovie}
         videos={videos}
-        production={production}
+        tabs={tabs}
         tabChange={this.tabChange}
       />
     );

@@ -102,15 +102,15 @@ const Countries = styled.div`
 const Production = styled.div`
   margin: 10px 0;
 `;
-const ProductionButton = styled.button`
+const TabsButton = styled.button`
   :first-child {
     background-color: ${props =>
-      props.production === "companies" ? "red" : "#fff"};
+      props.tabsButton === "videos" ? "red" : "#fff"};
     border-radius: 5px;
   }
   :last-child {
     background-color: ${props =>
-      props.production !== "companies" ? "red" : "#fff"};
+      props.tabsButton === "production" ? "red" : "#fff"};
     border-radius: 5px;
   }
   margin: 10px 5px 10px 0;
@@ -121,7 +121,7 @@ const DetailPresenter = ({
   error,
   isMovie,
   videos,
-  production,
+  tabs,
   tabChange
 }) =>
   loading ? (
@@ -163,10 +163,8 @@ const DetailPresenter = ({
                 : result.first_air_date.substring(0, 4)}
             </Item>
             <Divider>•</Divider>
-            <Item>
-              {result.runtime ? result.runtime : result.episode_run_time[0]} min
-            </Item>
-            <Divider>•</Divider>
+            <Item>{result.runtime ? `${result.runtime} min` : ""}</Item>
+            {result.runtime ? <Divider>•</Divider> : ""}
             <Item>
               {result.genres &&
                 result.genres.map((genre, index) =>
@@ -187,39 +185,65 @@ const DetailPresenter = ({
               </Link>
             )}
           </ItemContainer>
+          <Overview>{result.overview}</Overview>
           <ItemContainer>
             <Production>
-              <ProductionButton
-                production={production}
-                onClick={() => tabChange("companies")}
+              <TabsButton tabsButton={tabs} onClick={() => tabChange("videos")}>
+                Videos
+              </TabsButton>
+              <TabsButton
+                tabsButton={tabs}
+                onClick={() => tabChange("production")}
               >
-                Production Companies
-              </ProductionButton>
-              <ProductionButton
-                production={production}
-                onClick={() => tabChange("countries")}
-              >
-                Production Countries
-              </ProductionButton>
+                Production
+              </TabsButton>
             </Production>
-            <Companies>
-              {production === "companies"
-                ? result.production_companies.map(
-                    (production_companie, index) =>
-                      production_companie.logo_path ? (
-                        <Images
-                          key={production_companie.id}
-                          src={`https://image.tmdb.org/t/p/original/${production_companie.logo_path}`}
-                        />
-                      ) : (
-                        ""
+          </ItemContainer>
+          {tabs === "videos" ? (
+            <ItemContainer>
+              {videos &&
+                videos
+                  .slice(0, 2)
+                  .map((video, index) => (
+                    <Videos
+                      width="560"
+                      height="315"
+                      key={index}
+                      src={`https://www.youtube.com/embed/${video.key}`}
+                      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                      title="a"
+                    ></Videos>
+                  ))}
+            </ItemContainer>
+          ) : (
+            ""
+          )}
+          {tabs === "production" ? (
+            <ItemContainer>
+              <Companies>
+                <SubTitle>Production Companies</SubTitle>
+                {result
+                  ? result.production_companies.some(
+                      production_companie =>
+                        production_companie.logo_path !== null
+                    )
+                    ? result.production_companies.map(
+                        (production_companie, index) =>
+                          production_companie.logo_path ? (
+                            <Images
+                              key={production_companie.id}
+                              src={`https://image.tmdb.org/t/p/original/${production_companie.logo_path}`}
+                            />
+                          ) : (
+                            ""
+                          )
                       )
-                  )
-                : ""}
-            </Companies>
-            <Countries>
-              {production === "countries"
-                ? result.production_countries
+                    : "X"
+                  : ""}
+              </Companies>
+              <Countries>
+                <SubTitle>Production Countries</SubTitle>
+                {result.production_countries
                   ? result.production_countries.map(
                       (production_countrie, index) =>
                         production_countrie ? (
@@ -230,41 +254,28 @@ const DetailPresenter = ({
                           ""
                         )
                     )
-                  : ""
-                : ""}
-            </Countries>
-          </ItemContainer>
-          <Overview>{result.overview}</Overview>
+                  : "X"}
+              </Countries>
+            </ItemContainer>
+          ) : (
+            ""
+          )}
           <ItemContainer>
             {!isMovie ? <SubTitle>Seasons</SubTitle> : ""}
             {!isMovie
-              ? result.seasons.map((season, index) =>
-                  season.poster_path ? (
-                    <Images
-                      key={index}
-                      src={`https://image.tmdb.org/t/p/original/${season.poster_path}`}
-                    />
-                  ) : (
-                    ""
+              ? result.seasons.some(season => season.poster_path !== null)
+                ? result.seasons.map((season, index) =>
+                    season.poster_path ? (
+                      <Images
+                        key={index}
+                        src={`https://image.tmdb.org/t/p/original/${season.poster_path}`}
+                      />
+                    ) : (
+                      ""
+                    )
                   )
-                )
+                : "X"
               : ""}
-          </ItemContainer>
-          <ItemContainer>
-            <SubTitle>YouTube</SubTitle>
-            {videos &&
-              videos
-                .slice(0, 2)
-                .map((video, index) => (
-                  <Videos
-                    width="560"
-                    height="315"
-                    key={index}
-                    src={`https://www.youtube.com/embed/${video.key}`}
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                    title="a"
-                  ></Videos>
-                ))}
           </ItemContainer>
         </Data>
       </Content>
@@ -276,7 +287,7 @@ DetailPresenter.propTypes = {
   loading: PropTypes.bool.isRequired,
   isMovie: PropTypes.bool.isRequired,
   videos: PropTypes.array,
-  production: PropTypes.string.isRequired,
+  tabs: PropTypes.string.isRequired,
   tabChange: PropTypes.func.isRequired,
   error: PropTypes.string
 };
